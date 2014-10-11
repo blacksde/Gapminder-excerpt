@@ -1,0 +1,131 @@
+---
+title: "function building"
+author: "Sde"
+date: "2014/10/05"
+output: html_document
+---
+
+In this part of the assignment 4, I will display the process of building of my function `my.lm.int`. 
+
+# Seting the goal of the function
+## Building process
+As is required in the [assignment 4](http://stat545-ubc.github.io/hw04_write-function-use-plyr.html#inspiration-for-what-to-compute), I need to find some _interesting_ countries to explore. Then there comes a question: how might one operationalize this notion of "interesting"?
+
+I think about two ways to define a _interesting_ countries:
+
+
+1. Fit a regression using ordinary least squares and a robust technique. Determine the difference in estimated parameters under the two approaches. If it is large, consider that country "interesting".
+
+2. Fit a regression of the response vs. time. Consider the residuals. Determine if there are 1 or more freakishly large residuals, in an absolute sense or relative to some estimate of background variability. If there are, consider that country "interesting".
+
+
+Then in the following parts of this md file, I will show my process of building corresponding two functions.
+
+# Residual
+In this section, I will display the process of process of building the function of getting the max residual in a regression model. To simplify the function, I fix the model as running regression lifeExp with respect to year. Then a draft of the function can be
+done as:
+
+```{r}
+my.lm.int.d1 <- function(x) {
+  jFit <- lm(lifeExp ~ year, x)
+  return(
+    max(abs(resid(jFit)))
+    )
+  }
+```
+
+However, the function is not good as it has no mechanics to dealing with error input, so the first modification about error input is:
+```{r}
+my.lm.int.d2 <- function(x) {
+   if(!is.numeric(x$year)|!is.numeric(x$lifeExp)) {
+    stop('I am so sorry, but this function only works for numeric input!')
+  }
+  jFit <- lm(lifeExp ~ year, x)
+  return(
+    max(abs(resid(jFit)))
+    )
+  }
+```
+
+Another question in the function is the scaling of parameter and result. As we notice, the variable `year` is usually larger than 1952, which make the absolute value of intercept large. Also the result is the absolute value of residual, but it may be better to display  relative to some estimate of background variability. Last but not least, it may be better to have the coef in the output as well. So the finally function is:
+
+```{r}
+my.lm.int <- function(x) {
+  if(!is.numeric(x$year)|!is.numeric(x$lifeExp)) {
+    stop('I am so sorry, but this function only works for numeric input!')
+  }
+  jFit <- lm(lifeExp ~ I(year - min(x$year)), x)
+  jCoef <- coef(jFit)
+  names(jCoef) <- NULL
+  return(c(intercept = jCoef[1],
+           slope = jCoef[2],
+           maxResid = max(abs(resid(jFit)))/summary(jFit)$sigma))
+  }
+```
+
+## Testing the function
+First about error input:
+```{r,eval = FALSE}
+erroryear = data.frame(year = 'x', lifeExp = 1:10)
+errorlife = data.frame(year = 1:10, lifeExp = 'x')
+
+my.lm.int(erroryear)
+# I am so sorry, but this function only works for numeric input!
+my.lm.int(errorlife)
+# I am so sorry, but this function only works for numeric input!
+```
+
+Then some simple data:
+```{r}
+datatest = data.frame(year = 1:10, lifeExp = c(1:9,11))
+
+my.lm.int(datatest)
+```
+
+Finall our `gDat`
+```{r}
+gdURL <- "http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt"
+gDat <- read.delim(file = gdURL)
+my.lm.int(gDat)
+```
+
+# OLS vs Rob
+As the process of develop is quite similar, here we only give the final result of the function as
+```{r}
+my.lmrob.int <- function(x) {
+  if(!is.numeric(x$year)|!is.numeric(x$lifeExp)) {
+    stop('I am so sorry, but this function only works for numeric input!')
+  }
+  library(robustbase)
+  jFit <- lm(lifeExp ~ I(year - min(x$year)), x)
+  jCoef <- coef(jFit)
+  names(jCoef) <- NULL
+  rFit <- lmrob(lifeExp ~ I(year - min(x$year)), x)
+  rCoef <- coef(rFit)
+  names(rCoef) <- NULL
+  return(c(intercept = jCoef[1],
+           slope = jCoef[2],
+           dist = 100*sum(abs((jCoef-rCoef)/jCoef))))
+  # we use the percentage from OLS as distance
+  }
+
+# simple test use gDat
+my.lmrob.int(gDat)
+```
+
+# Residual for quadric regression
+We also want to discover the residuals for quadric regression. The function are as follows:
+```{r}
+quadresid<-function(x, y){
+  if(!is.numeric(x)|!is.numeric(y)) {
+    stop('I am so sorry, but this function only works for numeric input!')
+  }
+  jFit <- lm(y ~ I(x-min(x))+I((x-min(x))^2))
+  return(
+    max(abs(resid(jFit)))
+    )
+}
+
+# a simple test use gDat
+quadresid(gDat$year, gDat$lifeExp)
+```

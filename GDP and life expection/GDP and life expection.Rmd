@@ -1,0 +1,355 @@
+---
+title: "HW3"
+author: "Zichun Ye"
+date: "2014/09/26"
+output: pdf_document
+---
+In this assignment, we will continue to explore the data set [Gapminder excerpt](http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt). 
+
+# Preparation
+
+Before preceeding to the exciting parts, we need some preparation like loading the data and library.
+
+```{r}
+# load the data
+gdURL <-"http://tiny.cc/gapminder"
+gDat <- read.delim(file = gdURL)
+
+# load the library
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(knitr)
+library(reshape2)
+
+# change data.frame to tbl_df 
+gtbl <- tbl_df(gDat)
+glimpse(gtbl)
+```
+
+# Our exploration
+* TASK NO.1: Get the maximum and minimum of GDP per capita for all continents.
+```{r}
+# Get the maximum and minimum of GDP per capita for all continents.
+gdp_int <- gtbl %>%
+  group_by(continent) %>%
+  summarize(min_gdpPercap = min(gdpPercap), max_gdpPercap = max(gdpPercap))
+
+# resharp the data for plot
+gdp_int.r = melt(gdp_int)
+```
+
+```{r two-column, results='asis', echo=FALSE, out.extra=''}
+cat("<table class='container'><tr>")
+cat("<td>")
+kable(gdp_int)
+cat("</td>")
+cat("<td>")
+ggplot(gdp_int.r, aes(continent,value,fill=variable))+
+  geom_bar(position="dodge",stat="identity")
+cat("</td>")
+cat("</tr></table>")
+```
+
+* TASK NO.2: Look at the spread of GDP per capita within the continents.
+
+```{r}
+# first we look at the range of gdp
+gdp_spread <- gtbl %>%
+  group_by(continent) %>%
+  summarize(spread_gdpPercap = max(gdpPercap)-min(gdpPercap))
+```
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("<table class='container'><tr>")
+cat("<td>")
+kable(gdp_spread)
+cat("</td>")
+cat("<td>")
+ggplot(gdp_spread, aes(continent,spread_gdpPercap,fill=spread_gdpPercap))+
+  geom_bar(position="dodge",stat="identity")+
+  theme_bw()
+cat("</td>")
+cat("</tr></table>")
+```
+
+```{r}
+#  Then look at the sd and iqr of the data of GDP per capita within the continents. 
+gdp_spread2 <- gtbl %>%
+  group_by(continent) %>%
+  summarize(sd_gdp = sd(gdpPercap), iqr_gdp = IQR(gdpPercap))
+gdp_spread2.r = melt(gdp_spread2)
+```
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("<table class='container'><tr>")
+cat("<td>")
+kable(gdp_spread2)
+cat("</td>")
+cat("<td>")
+ggplot(gdp_spread2.r, aes(continent,value,fill=variable))+
+  geom_bar(position="dodge",stat="identity")+
+  theme_bw()
+cat("</td>")
+cat("</tr></table>")
+```
+
+```{r}
+# also box plot is a good way to see the spread of data
+ggplot(gtbl, aes(continent, gdpPercap))+
+  geom_boxplot(aes(fill = continent), outlier.shape = NA)+
+  geom_jitter(alpha = 0.1, position = position_jitter(width = 0.1))+
+  xlab("Continent")+
+  ylab("GDP per capita")+
+  ylim(c(0,5e4))+
+  theme_bw()
+```
+
+* TASK NO.3: Compute a trimmed mean of life expectancy for different years. Or a weighted mean, weighting by population. 
+```{r}
+# Compute 90% trimmed mean of life expectancy for different years.
+lifeExp_tmean <- gtbl %>%
+  group_by(year) %>%
+  summarize(tmean_lifeExp= mean(lifeExp,trim = 0.05))
+```
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("<table class='container'><tr>")
+cat("<td>")
+kable(lifeExp_tmean)
+cat("</td>")
+cat("<td>")
+ggplot(lifeExp_tmean, aes(year,tmean_lifeExp))+
+  ggtitle("Trimmed average over year")+
+  geom_point(color="red")+
+  geom_line(color="blue")+
+  theme_bw()+
+  theme(plot.title = element_text(lineheight=.8, face="bold"))
+cat("</td>")
+cat("</tr></table>")
+```
+
+```{r}
+# a weighted mean, weighting by population. 
+lifeExp_wmean <- gtbl %>%
+  group_by(year) %>%
+  summarize(wmean_lifeExp= weighted.mean(lifeExp,pop))
+```
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("<table class='container'><tr>")
+cat("<td>")
+kable(lifeExp_wmean)
+cat("</td>")
+cat("<td>")
+ggplot(lifeExp_wmean, aes(year,wmean_lifeExp))+
+  ggtitle("Weighted average over year")+
+  geom_point(color="red")+
+  geom_line(color="blue")+
+  theme_bw()+
+  theme(plot.title = element_text(lineheight=.8, face="bold"))
+cat("</td>")
+cat("</tr></table>")
+```
+
+* TASK NO4: How is life expectancy changing over time on different continents?
+
+```{r}
+# use weighted average lifeExp here
+lifeExp_mean <- gtbl %>%
+  group_by(continent, year) %>%
+  summarize(wmean_lifeExp= weighted.mean(lifeExp,pop))
+```
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("<table class='container'><tr>")
+cat("<td>")
+kable(lifeExp_mean)
+cat("</td>")
+cat("<td>")
+ggplot(lifeExp_mean, aes(year, wmean_lifeExp, colour = continent)) +
+  facet_wrap( ~ continent, ncol = 2) +
+  theme(legend.position = "none") +
+  xlab("Year") +
+  ylab("Life Expectancy")+
+  ggtitle("Weighted average over year")+
+  geom_point()+
+  geom_line()+
+  theme_bw()+
+  theme(plot.title = element_text(lineheight=.8, face="bold"))
+cat("</td>")
+cat("</tr></table>")
+```
+
+* TASK NO5: Report the absolute and/or relative abundance of countries
+  with low life expectancy over time by continent: Compute some 
+  measure of worldwide life expectancy – you decide – a mean or
+ median or some other quantile or perhaps your current age. 
+ The determine how many countries on each continent have a life 
+ expectancy less than this benchmark, for each year.
+ 
+```{r}
+# use median as benchmark
+benchmark<-median(gtbl$lifeExp) 
+lifeExp_abu<-gtbl %>%
+  group_by(continent, year) %>%
+  filter(lifeExp < benchmark) %>%
+  summarize(n_countries = n_distinct(country))
+```
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("<table class='container'><tr>")
+cat("<td>")
+kable(lifeExp_abu)
+cat("</td>")
+cat("<td>")
+ggplot(lifeExp_abu, aes(year,n_countries,colour = continent))+
+  facet_wrap( ~ continent, ncol = 2) +
+  geom_point()+
+  geom_line()+
+  ggtitle("NO. of countries with lifeExp under median")+
+  theme_bw()
+cat("</td>")
+cat("</tr></table>")
+```
+
+* TASK NO6: Find countries with interesting stories.
+
+```{r}
+gtbl %>%
+  filter(continent == "Asia") %>%
+  select(year, country, lifeExp) %>%
+  arrange(year) %>%
+  group_by(year) %>%
+  filter(min_rank(desc(lifeExp)) < 2 | min_rank(lifeExp) < 2)
+```
+
+We see that (min = Afghanistan, max = Japan) is the most frequent result.
+```{r}
+#Compare Afghanistan, Japan and world average
+data_avg<- gtbl %>%
+  group_by(year) %>%
+  summarize(lifeExp= mean(lifeExp))
+data_life<-tbl_df(data.frame(year = data_avg$year, 
+                             Jap = filter(gtbl, country == "Japan")$lifeExp,
+                             Afg = filter(gtbl, country == "Afghanistan")$lifeExp,
+                             Avg = data_avg$lifeExp))
+```
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("<table class='container'><tr>")
+cat("<td>")
+kable(data_life)
+cat("</td>")
+cat("<td>")
+ggplot(data=data_life)+
+  geom_line(aes(x = year, y=Jap,colour = "Jap"))+
+  geom_line(aes(x = year, y=Afg,colour = "Afg"))+
+  geom_line(aes(x = year, y=Avg,colour = "Avg"))+
+  xlab("Year") + ylab("Life Expectancy")+ggtitle("Japan vs Afghanistan")+
+  scale_colour_manual("Life Exp",values = c("Jap" = "red","Afg" = "blue","Avg" = "yellow"))+
+  theme_bw()+
+  theme(plot.title = element_text(lineheight=.8, face="bold"))
+cat("</td>")
+cat("</tr></table>")
+```
+
+
+Next, we want to find the country experiencing the sharpest 5-year drop in life expectancy.
+
+```{r}
+gtbl %>%
+  group_by(continent, country) %>%
+  select(country, year, continent, lifeExp) %>%
+  mutate(le_delta = lifeExp - lag(lifeExp)) %>%
+  summarize(worst_le_delta = min(le_delta, na.rm = TRUE)) %>%
+  filter(min_rank(worst_le_delta) < 2) %>%
+  arrange(worst_le_delta)
+```
+
+For above five countries, we have:
+```{r}
+data_drop <- tbl_df(data.frame(year = data_avg$year, 
+                               Rwa = filter(gtbl, country == "Rwanda")$lifeExp,
+                               Cam = filter(gtbl, country == "Cambodia")$lifeExp,
+                               ES  = filter(gtbl, country == "El Salvador")$lifeExp,
+                               Mon = filter(gtbl, country == "Montenegro")$lifeExp,
+                               Aus = filter(gtbl, country == "Australia")$lifeExp,
+                               Avg = data_avg$lifeExp))
+```
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("<table class='container'><tr>")
+cat("<td>")
+kable(data_drop)
+cat("</td>")
+cat("<td>")
+ggplot(data=data_drop)+
+  geom_line(aes(x = year, y=Rwa,colour = "Rwa"))+
+  geom_line(aes(x = year, y=Cam,colour = "Cam"))+
+  geom_line(aes(x = year, y=ES,colour = "Es"))+
+  geom_line(aes(x = year, y=Mon,colour = "Mon"))+
+  geom_line(aes(x = year, y=Aus,colour = "Aus"))+
+  geom_line(aes(x = year, y=Avg,colour = "Avg"))+
+  xlab("Year") + ylab("Life Expectancy")+ggtitle("Great Drop")+
+  scale_colour_manual("Life Exp",values = c("Rwa" = "red","Cam" = "blue",
+                                            "Avg" = "yellow","Es" = "green",
+                                            "Mon" = "black", "Aus" = "pink"))+
+  theme_bw()+
+  theme(plot.title = element_text(lineheight=.8, face="bold"))
+cat("</td>")
+cat("</tr></table>")
+```
+
+We also want a special analysis of Rwanda.
+```{r}
+# analysis for Rwanda
+data_Rwa = gtbl %>% filter(country == "Rwanda")
+```
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("<table class='container'><tr>")
+cat("<td>")
+kable(data_Rwa)
+cat("</td>")
+cat("<td>")
+ggplot(data_Rwa, aes(year, pop)) +
+  ggtitle("Rwanda Population")+
+  geom_point(color="red")+
+  geom_line(color="blue")+
+  theme_bw()+
+  theme(plot.title = element_text(lineheight=.8, face="bold"))
+ggplot(data_Rwa, aes(year, gdpPercap)) +
+  ggtitle("Rwanda gdpPercap")+
+  geom_point(color="red")+
+  geom_line(color="blue")+
+  theme_bw()+
+  theme(plot.title = element_text(lineheight=.8, face="bold"))
+cat("</td>")
+cat("</tr></table>")
+```
+We notice that population and Gdp also experienced a big decrease in 1990s. After googling, we think the reason must be [_Rwandan Genocide_](http://en.wikipedia.org/wiki/Rwandan_Genocide).
+
+# My experience and workflow
+1. `dplyr` is indeed a power tool for the analysis. Some of its grammer are similar that of `sql`. With some experience of using sql, I think I am really quick in understanding the functions in `dplyr`.
+2. This time we continue our application of `ggplot`. One preblem I meet is to draw a bar graph with the data in two columns side-by-side. Although I have already learned about `position="dodge"`, it still took me some time as I finally found I need to resharp the data. See [this](http://stackoverflow.com/questions/13250872/reshaping-data-to-plot-in-r-using-ggplot2) on stackoverflow for more detail.
+3. To acheive the task of put a figure and relevant table right next to each other. It need some code in html. The following code may help if anyone need
+```{r}
+#```{r, results='asis', echo=FALSE, out.extra=''}
+#cat("<table class='container'><tr>")
+#cat("<td>")
+#kable(data_Rwa)
+#cat("</td>")
+#cat("<td>")
+#ggplot(data_Rwa, aes(year, pop)) +
+#  ggtitle("Rwanda Population")+
+#  geom_point(color="red")+
+#  geom_line(color="blue")+
+#  theme_bw()+
+#  theme(plot.title = element_text(lineheight=.8, face="bold"))
+#ggplot(data_Rwa, aes(year, gdpPercap)) +
+#  ggtitle("Rwanda gdpPercap")+
+#  geom_point(color="red")+
+#  geom_line(color="blue")+
+#  theme_bw()+
+#  theme(plot.title = element_text(lineheight=.8, face="bold"))
+#cat("</td>")
+#cat("</tr></table>")
+#```
+```
