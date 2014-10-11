@@ -1,10 +1,10 @@
 ---
-title: "HW3"
+title: "GDP and lifexp"
 author: "Zichun Ye"
 date: "2014/09/26"
 output: pdf_document
 ---
-In this assignment, we will continue to explore the data set [Gapminder excerpt](http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt). 
+In this part, we will continue to explore the data set [Gapminder excerpt](http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt). 
 
 # Preparation
 

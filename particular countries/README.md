@@ -1,6 +1,6 @@
-# Instruction for the file of HW4
+# Particular Countries
 
-This is the file for my HW4. The assignment consists two parts: function building and main report.
+This is the file contains reports for analysis of particular countries, including two parts. 
 
 ## function building
 To read my md report, click [here](https://github.com/blacksde/Gapminder-excerpt/blob/master/particular%20countries/function%20building.md).
