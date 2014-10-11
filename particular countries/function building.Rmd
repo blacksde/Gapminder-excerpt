@@ -5,7 +5,7 @@ date: "2014/10/05"
 output: html_document
 ---
 
-In this part of the assignment 4, I will display the process of building of my function `my.lm.int`. 
+In this part, I will display the process of building of my function `my.lm.int`. 
 
 # Seting the goal of the function
 ## Building process

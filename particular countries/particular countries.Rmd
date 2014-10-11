@@ -1,11 +1,11 @@
 ---
-title: "hw4"
+title: "Particular Countries"
 author: "Sde"
 date: "2014/10/05"
 output: html_document
 ---
 
-In this part of assignment 4, we will use the the function we developed in [function building](website), and continue our exploration of the the data set [Gapminder excerpt](http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt). 
+In this part, we will use the the function we developed in [function building](website), and continue our exploration of the the data set [Gapminder excerpt](http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt). 
 
 # Preparation
 Before preceeding to the exciting parts, we need some preparation like loading the data and library, and setting function.
