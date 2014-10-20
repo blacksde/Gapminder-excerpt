@@ -10,3 +10,4 @@ The project contains following parts.
 2. Analysis GDP and life expection both within continents and over the time. Click [here](https://github.com/blacksde/Gapminder-excerpt/blob/master/GDP%20and%20life%20expection/GDP%20and%20life%20expection.md) to access to the report.
 
 3. Analysis life expection for particular countries. Click [here](https://github.com/blacksde/Gapminder-excerpt/blob/master/particular%20countries/particular%20countries.md) to access to the report.
+4.  Advanced analysis about factor variables. Click [here](https://github.com/blacksde/Gapminder-excerpt/blob/master/Advanced%20analysis%20about%20factor%20variables/Advanced%20analysis%20about%20factor%20variables.md) to access to the report.
