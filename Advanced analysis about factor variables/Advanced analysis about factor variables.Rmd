@@ -1,0 +1,219 @@
+---
+title: "HW5"
+author: "Sde"
+date: "2014/10/16"
+output: html_document
+---
+In this assignment, we will continue to explore the data set [Gapminder excerpt](http://www.stat.ubc.ca/~jenny/notOcto/STAT545A/examples/gapminder/data/gapminderDataFiveYear.txt). 
+
+# Preparation
+
+Before preceeding to the exciting parts, we need some preparation like loading the data and library.
+
+```{r}
+# load the data
+gdURL <-"http://tiny.cc/gapminder"
+gDat <- read.delim(file = gdURL)
+
+# load the library
+library(plyr)
+suppressPackageStartupMessages(library(dplyr))
+library(ggplot2)
+library(ggthemes)
+library(knitr)
+```
+
+
+# Drop Oceania
+Now we will filter the Gapminder data to remove everything associated with the continent of Oceania. Before droping, we will have a look at some basic facts of the dataset.
+```{r}
+# before droping Oceania
+nlevels(gDat$continent)
+levels(gDat$continent)
+nrow(gDat$continent)
+```
+
+Then drop Oceania by `filter` and also correct the level of factors by `droplevels`.
+```{r}
+# drop Oceania
+hDat<- gDat %>%
+  filter(continent != "Oceania")
+
+iDat  <- hDat %>% droplevels
+nlevels(iDat$continent)
+levels(iDat$continent)
+nrow(gDat$continent)
+```
+We can see that the number of rows and levels decrease and the level no longer include `Oceania`.
+
+
+# Model life expectancy as a function of year
+For each country, retain estimated intercept and slope from a linear fit – regressing life expectancy on year.
+```{r}
+j_coefs <- ddply(gDat, ~ country + continent, function(dat, offset = 1952) {
+  the_fit <- lm(lifeExp ~ I(year - offset), dat)
+  setNames(coef(the_fit), c("intercept", "slope"))
+})
+```
+
+Then a basic characterization and description of the j_coef object are as follows:
+```{r}
+str(j_coefs)
+names(j_coefs)
+head(j_coefs)
+```
+
+# Order of data vs. order of factor levels
+Consider post_arrange, post_reorder, and post_both as defined below.
+```{r}
+post_arrange <- j_coefs %>% arrange(slope)
+post_reorder <- j_coefs %>%
+  mutate(country = reorder(country, slope))
+post_both <- j_coefs %>%
+  mutate(country = reorder(country, slope)) %>%
+  arrange(country)
+```
+
+For `post_arrange`, the data is arranged by `slope`. For `post_reorder`, the order of level of country is set to be the value of `slope`. For `post_both`, the order of level of country is set to be the value of `slope` and then the data is arranged by `country`. Thus 
+`post_arrange` and `post_both` should be the same while in `post_reorder` dataset is not arranged. The following codes and plots show this fact.
+
+```{r}
+identical(post_arrange, post_reorder)
+identical(post_both, post_reorder)
+identical(post_arrange, post_both)
+```
+```{r}
+ggplot(post_arrange, aes(x = slope, y = country)) + 
+  geom_point(size = 3) + theme_gdocs()
+ggplot(post_reorder, aes(x = slope, y = country)) + 
+  geom_point(size = 3) + theme_gdocs()
+ggplot(post_both, aes(x = slope, y = country)) + 
+  geom_point(size = 3) + theme_gdocs()
+```
+
+# Revalue a factor
+Here I choose six main countries in WWII and add a variable `leader` for the leader in WWII by revaluing the factor `country`.
+```{r}
+h_countries <- c("Italy", "Germany", "Japan", "United Kingdom","United States", "China")
+hDat <- gDat %>%
+  filter(country %in% h_countries) %>% 
+  droplevels
+hDat <- hDat %>%
+  mutate(leader =revalue(hDat$country, c("Italy" = "Mussolini", 
+            "Germany" = "Hitler", 
+            "Japan" = "Hideki Tojo", 
+            "United Kingdom" = "Churchill",
+            "United States" = "Roosevelt", 
+            "China" = "Chiang Kai-shek")))
+
+kable(hDat)
+```
+Following table and plot provide clear proof that my new factor `leader` is a revalued version of `country`.
+```{r}
+kable(hDat[,c(1,7)])
+ggplot(hDat, aes(x = country, y = leader, group = 1,color = country)) +
+  geom_jitter(size = 3, position = position_jitter(width = .1)) +
+  theme_gdocs()
+```
+
+# Reorder a factor
+Here I choose the factor continent and reorder this factor by max of ratio of lifeExp over gdpPercap.
+```{r}
+jDat <- gDat %>%
+  mutate(continent = reorder(continent, lifeExp/gdpPercap, max))
+```
+This is the plot before reordering.
+```{r}
+p <- ggplot(gDat, aes(x = continent, y = (lifeExp/gdpPercap), group = 1,color = continent))
+p + geom_jitter(size = 3, position = position_jitter(width = .1)) +
+  labs(y = "Ratio")+
+  stat_summary(fun.y = max, geom = "path") +
+  theme_gdocs()
+```
+This is the plot after reordering.
+```{r}
+p <- ggplot(jDat, aes(x = continent, y = (lifeExp/gdpPercap), group = 1,color = continent))
+p + geom_jitter(size = 3, position = position_jitter(width = .1)) +
+  stat_summary(fun.y = max, geom = "path")+
+  labs(y = "Ratio")+
+  theme_gdocs()
+```
+
+# Write and read data to file
+Here we will cover 3 method of writing and reading data to file:
+
+* `write.table()` + `read.table()`
+* `saveRDS()` + `readRDS()`
+* `dput()` + `dget()`
+
+We will use data `hDat` with new factor `leader`.
+
+For `write.table()` + `read.table()`:
+```{r}
+write.table(hDat, "hDat.cvs", sep = ",", row.names = FALSE,
+            quote = FALSE)
+readhDat<-read.table("hDat.cvs",sep = ",", header = TRUE)
+identical(hDat, readhDat)
+```
+
+Notice that the outcome of comparing input and output is `FALSE`. This is because the factor `leader` is a revalue of `country`, which is lost during writing and reading. Thus following operator is required.
+```{r}
+readhDat <- readhDat %>%
+  mutate(leader =revalue(hDat$country, c("Italy" = "Mussolini", 
+                                         "Germany" = "Hitler", 
+                                         "Japan" = "Hideki Tojo", 
+                                         "United Kingdom" = "Churchill",
+                                         "United States" = "Roosevelt", 
+                                         "China" = "Chiang Kai-shek")))
+identical(hDat, readhDat)
+```
+Then it works well.
+
+For `saveRDS()` + `readRDS()` and `dput()` + `dget()`, things turn out to be simple.
+```{r}
+saveRDS(hDat, "hDat.rds")
+hDatRDS <- readRDS("hDat.rds")
+identical(hDat, hDatRDS)
+```
+```{r}
+dput(hDat, "hDat-dput.txt")
+hDatPut <- dget("hDat-dput.txt")
+identical(hDat, hDatPut)
+```
+
+# Play with the `factor(, ... levels = ...)` function
+* Experiment with using stringsAsFactors = FALSE in read.table() followed by an explicit call to factor(). 
+```{r}
+readhDat.wf<-read.table("hDat.cvs",sep = ",", header = TRUE,stringsAsFactors = FALSE)
+str(readhDat.wf)
+```
+Now variables country, continent and leader is char, no longer factor. The way to change them into factor is to use function `factor`. 
+```{r}
+readhDat.wf$country = factor(readhDat.wf$country)
+readhDat.wf$continent = factor(readhDat.wf$continent)
+readhDat.wf$leader = factor(readhDat.wf$leader)
+str(readhDat.wf)
+```
+Now everything seems all right.
+
+* apply factor levels from one version of a factor to another
+Here we reorder country based on max of lifeExp in hDat THEN apply those factor levels back to country in the readhDat.wf.
+```{r}
+hDat.order <- hDat %>%
+  mutate(country = reorder(country, lifeExp, max))
+```
+Before application:
+```{r}
+levels(readhDat.wf$country)
+```
+
+After application:
+```{r}
+readhDat.wf$country = factor(readhDat.wf$country, level = levels(hDat.order$country))
+levels(readhDat.wf$country)
+```
+
+# My experience and workflow
+
+1. Reordering a factor is quite a new suject to me. It seems strange in the beginning but turns out to be very useful. For example, reordering factor variable can make plot more readable.
+2. It takes me quite long to figure out why the result of comparing input and output by `write.table()`+`read.table()` is `FALSE`. This is because the factor `leader` is a revalue of `country`, which is lost during writing and reading. I think `saveRDS()` + `readRDS()` and `dput()` + `dget()` are better ways to keep all the information in data.

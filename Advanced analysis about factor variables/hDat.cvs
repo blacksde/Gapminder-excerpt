@@ -1,0 +1,73 @@
+country,year,pop,continent,lifeExp,gdpPercap,leader
+China,1952,556263527.999989,Asia,44,400.448610699994,Chiang Kai-shek
+China,1957,637408000,Asia,50.54896,575.9870009,Chiang Kai-shek
+China,1962,665770000,Asia,44.50136,487.6740183,Chiang Kai-shek
+China,1967,754550000,Asia,58.38112,612.7056934,Chiang Kai-shek
+China,1972,862030000,Asia,63.11888,676.9000921,Chiang Kai-shek
+China,1977,943455000,Asia,63.96736,741.2374699,Chiang Kai-shek
+China,1982,1000281000,Asia,65.525,962.4213805,Chiang Kai-shek
+China,1987,1084035000,Asia,67.274,1378.904018,Chiang Kai-shek
+China,1992,1164970000,Asia,68.69,1655.784158,Chiang Kai-shek
+China,1997,1230075000,Asia,70.426,2289.234136,Chiang Kai-shek
+China,2002,1280400000,Asia,72.028,3119.280896,Chiang Kai-shek
+China,2007,1318683096,Asia,72.961,4959.114854,Chiang Kai-shek
+Germany,1952,69145952,Europe,67.5,7144.114393,Hitler
+Germany,1957,71019069,Europe,69.1,10187.82665,Hitler
+Germany,1962,73739117,Europe,70.3,12902.46291,Hitler
+Germany,1967,76368453,Europe,70.8,14745.62561,Hitler
+Germany,1972,78717088,Europe,71,18016.18027,Hitler
+Germany,1977,78160773,Europe,72.5,20512.92123,Hitler
+Germany,1982,78335266,Europe,73.8,22031.53274,Hitler
+Germany,1987,77718298,Europe,74.847,24639.18566,Hitler
+Germany,1992,80597764,Europe,76.07,26505.30317,Hitler
+Germany,1997,82011073,Europe,77.34,27788.88416,Hitler
+Germany,2002,82350671,Europe,78.67,30035.80198,Hitler
+Germany,2007,82400996,Europe,79.406,32170.37442,Hitler
+Italy,1952,47666000,Europe,65.94,4931.404155,Mussolini
+Italy,1957,49182000,Europe,67.81,6248.656232,Mussolini
+Italy,1962,50843200,Europe,69.24,8243.58234,Mussolini
+Italy,1967,52667100,Europe,71.06,10022.40131,Mussolini
+Italy,1972,54365564,Europe,72.19,12269.27378,Mussolini
+Italy,1977,56059245,Europe,73.48,14255.98475,Mussolini
+Italy,1982,56535636,Europe,74.98,16537.4835,Mussolini
+Italy,1987,56729703,Europe,76.42,19207.23482,Mussolini
+Italy,1992,56840847,Europe,77.44,22013.64486,Mussolini
+Italy,1997,57479469,Europe,78.82,24675.02446,Mussolini
+Italy,2002,57926999,Europe,80.24,27968.09817,Mussolini
+Italy,2007,58147733,Europe,80.546,28569.7197,Mussolini
+Japan,1952,86459025,Asia,63.03,3216.956347,Hideki Tojo
+Japan,1957,91563009,Asia,65.5,4317.694365,Hideki Tojo
+Japan,1962,95831757,Asia,68.73,6576.649461,Hideki Tojo
+Japan,1967,100825279,Asia,71.43,9847.788607,Hideki Tojo
+Japan,1972,107188273,Asia,73.42,14778.78636,Hideki Tojo
+Japan,1977,113872473,Asia,75.38,16610.37701,Hideki Tojo
+Japan,1982,118454974,Asia,77.11,19384.10571,Hideki Tojo
+Japan,1987,122091325,Asia,78.67,22375.94189,Hideki Tojo
+Japan,1992,124329269,Asia,79.36,26824.89511,Hideki Tojo
+Japan,1997,125956499,Asia,80.69,28816.58499,Hideki Tojo
+Japan,2002,127065841,Asia,82,28604.5919,Hideki Tojo
+Japan,2007,127467972,Asia,82.603,31656.06806,Hideki Tojo
+United Kingdom,1952,50430000,Europe,69.18,9979.508487,Churchill
+United Kingdom,1957,51430000,Europe,70.42,11283.17795,Churchill
+United Kingdom,1962,53292000,Europe,70.76,12477.17707,Churchill
+United Kingdom,1967,54959000,Europe,71.36,14142.85089,Churchill
+United Kingdom,1972,56079000,Europe,72.01,15895.11641,Churchill
+United Kingdom,1977,56179000,Europe,72.76,17428.74846,Churchill
+United Kingdom,1982,56339704,Europe,74.04,18232.42452,Churchill
+United Kingdom,1987,56981620,Europe,75.007,21664.78767,Churchill
+United Kingdom,1992,57866349,Europe,76.42,22705.09254,Churchill
+United Kingdom,1997,58808266,Europe,77.218,26074.53136,Churchill
+United Kingdom,2002,59912431,Europe,78.471,29478.99919,Churchill
+United Kingdom,2007,60776238,Europe,79.425,33203.26128,Churchill
+United States,1952,157553000,Americas,68.44,13990.48208,Roosevelt
+United States,1957,171984000,Americas,69.49,14847.12712,Roosevelt
+United States,1962,186538000,Americas,70.21,16173.14586,Roosevelt
+United States,1967,198712000,Americas,70.76,19530.36557,Roosevelt
+United States,1972,209896000,Americas,71.34,21806.03594,Roosevelt
+United States,1977,220239000,Americas,73.38,24072.63213,Roosevelt
+United States,1982,232187835,Americas,74.65,25009.55914,Roosevelt
+United States,1987,242803533,Americas,75.02,29884.35041,Roosevelt
+United States,1992,256894189,Americas,76.09,32003.93224,Roosevelt
+United States,1997,272911760,Americas,76.81,35767.43303,Roosevelt
+United States,2002,287675526,Americas,77.31,39097.09955,Roosevelt
+United States,2007,301139947,Americas,78.242,42951.65309,Roosevelt
